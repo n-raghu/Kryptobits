@@ -22,7 +22,7 @@ tbl=getNAQticker('pfg','INR')
 appBI.layout=htm.Div(
     htm.Div([
         htm.Div([
-                htm.H1(children='Hello!!!',className='nine columns'),
+                htm.H1(children='Hello!!!',className='twelve columns'),
                 dcc.Markdown(''' *Making analytics speak* ''')
             ],className="row"),
 
