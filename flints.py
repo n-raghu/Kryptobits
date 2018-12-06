@@ -16,6 +16,8 @@ city_data={
     'Ottawa': {'x': [1, 2, 3], 'y': [2, 3, 3]}
 }
 
+tbl=getNAQticker('pfg','INR')
+
 app.layout=htm.Div(
     htm.Div([
         htm.Div([
@@ -47,7 +49,7 @@ app.layout=htm.Div(
 
         htm.Div([
             htm.Div([dcc.Graph(id='barGraph')], className='six columns'),
-            htm.Div([dcc.Graph(id='dataGist')], className='six columns')
+            htm.Div([dtl.DataTable(id='table',columns=['Artifacts','Valuation'],data=tbl)], className='six columns')
         ],className="row")
     ],className='ten columns offset-by-one')
 )
@@ -65,22 +67,10 @@ def update_image_src(selector):
     data=[]
     for city in selector:
         data.append({'x':city_data[city]['x'],'y':city_data[city]['y'],'type':'bar','name':city})
-    print (selector)
-    print(data)
-    figure={'data': data,'layout': {'title': 'Graph Representation'}}
+    figure={'data':data,'layout':{'title':'Graph Representation'}}
     return figure
 
-@app.callback(
-    dash.dependencies.Output('dataGist','figure'),
-    [dash.dependencies.Input('Cities','value')])
-def update_image_src(selector):
-    data=[]
-    for city in selector:
-        data.append({'x': city_data[city]['x'], 'y': city_data[city]['y'],'type': 'line', 'name': city})
-    print(selector)
-    print(data)
-    figure={'data': data,'layout': {'title': 'Line Representation'}}
-    return figure
+
 
 if __name__=='__main__':
     app.run_server(debug=True,host='0.0.0.0')

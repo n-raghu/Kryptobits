@@ -1,5 +1,4 @@
 import os
-
 from collections import OrderedDict as odict
 from copy import deepcopy
 import numpy as n
@@ -12,3 +11,4 @@ import flask
 import dash
 import dash_core_components as dcc
 import dash_html_components as htm
+import dash_table as dtl
