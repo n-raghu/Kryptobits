@@ -49,7 +49,7 @@ app.layout=htm.Div(
 
         htm.Div([
             htm.Div([dcc.Graph(id='barGraph')], className='six columns'),
-            htm.Div([dcc.Markdown('\t **Share Value :' +str(tbl['tkrcost'])+ '**' )], className='six columns')
+            htm.Div([dcc.Markdown('\t **Share Value :' +str(tbl['Price'])+ '**' )], className='six columns')
         ],className="row")
     ],className='ten columns offset-by-one')
 )
