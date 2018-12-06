@@ -1,4 +1,5 @@
 from tcalc import *
+from base64 import b64encode as b64
 
 x_css=['https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebce48fdb52759b2aef506/stylesheet-oil-and-gas.css']
 server=Flask(__name__)
@@ -19,9 +20,23 @@ city_data={
 
 tbl=getNAQticker('pfg','INR')
 
+imgFile='/git/flints/flints.PNG'
+en_img=b64(open(imgFile,'rb').read())
+
 appBI.layout=htm.Div(
     htm.Div([
-        htm.Div([htm.H1(children='Hello!, We make analytics speak ',className='eight columns')],className="row"),
+        htm.Div([
+            htm.H1(children='Hello!, We make analytics speak ',className='nine columns'),
+            htm.Img(src='data:image/png;base64,{}'.format(en_img),className='three columns',
+                    style={
+                        'height': '7%',
+                        'width': '7%',
+                        'float': 'right',
+                        'position': 'relative',
+                        'padding-top': 0,
+                        'padding-right': 0
+                    },
+                )],className="row"),
         htm.Div([
                 htm.Div([
                         dcc.Markdown(''' **Country** '''),
