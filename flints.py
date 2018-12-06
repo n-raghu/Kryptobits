@@ -48,8 +48,12 @@ app.layout=htm.Div(
             ],className="row"),
 
         htm.Div([
-            htm.Div([htm.H2('Share Price: ' +str(tbl['Price']))], className='six columns'),
-            htm.Div([dcc.Graph(id='barGraph')], className='six columns')
+            htm.Div([dcc.Graph(id='barGraph')], className='six columns'),
+            htm.Div([
+                htm.H3('Share Price: ' +str(tbl['Price'])),
+                htm.H3('Exchange: ' +str(tbl['Exchange'])),
+                htm.H3('100 Shares: ' +str(100*tbl['UnitPrice']))
+                ],className='six columns')
         ],className="row")
     ],className='ten columns offset-by-one')
 )
