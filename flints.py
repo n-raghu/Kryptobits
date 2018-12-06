@@ -49,7 +49,7 @@ app.layout=htm.Div(
 
         htm.Div([
             htm.Div([dcc.Graph(id='barGraph')], className='six columns'),
-            htm.Div(htm.H1(''),className='one columns'),
+            htm.Div(htm.H1(''),className='one column'),
             htm.Div([
                 htm.H3('Share Price: ' +str(tbl['Price'])),
                 htm.H3('Exchange: ' +str(tbl['Exchange'])),
