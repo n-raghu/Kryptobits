@@ -28,8 +28,7 @@ app.layout=htm.Div(
                         dcc.Markdown(''' **Country** '''),
                         dcc.RadioItems(id='Country',
                                 options=[{'label': k,'value': k} for k in all_options.keys()],
-                                value='All',labelStyle={'display': 'inline-block'}
-                        ),
+                                value='All',labelStyle={'display': 'inline-block'}),
                     ],
                     className='twelve columns',
                     style={'margin-top': '10'}
