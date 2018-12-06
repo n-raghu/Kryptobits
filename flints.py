@@ -28,7 +28,7 @@ app.layout=htm.Div(
                         dcc.Markdown(''' **Country** '''),
                         dcc.RadioItems(id='Country',
                                 options=[{'label': k,'value': k} for k in all_options.keys()],
-                                value='All',labelStyle={'display': 'inline-block'}),
+                                value='All',labelStyle={'display':'inline-block'}),
                     ],
                     className='twelve columns',
                     style={'margin-top': '10'}
@@ -63,27 +63,11 @@ def set_cities_options(selected_country):
     [dash.dependencies.Input('Cities','value')])
 def update_image_src(selector):
     data=[]
-    print (selector)
     for city in selector:
         data.append({'x':city_data[city]['x'],'y':city_data[city]['y'],'type':'bar','name':city})
-    figure = {
-        'data': data,
-        'layout': {
-            'title': 'Graph Representation',
-            'xaxis' : dict(
-                titlefont=dict(
-                family='Courier New, monospace',
-                size=20,
-                color='#7f7f7f'
-            )),
-            'yaxis' : dict(
-                titlefont=dict(
-                family='Helvetica, monospace',
-                size=20,
-                color='#7f7f7f'
-            ))
-        }
-    }
+    print (selector)
+    print(data)
+    figure={'data': data,'layout': {'title': 'Graph Representation'}}
     return figure
 
 @app.callback(
@@ -93,25 +77,10 @@ def update_image_src(selector):
     data=[]
     for city in selector:
         data.append({'x': city_data[city]['x'], 'y': city_data[city]['y'],'type': 'line', 'name': city})
-    figure = {
-        'data': data,
-        'layout': {
-            'title': 'Line Representation',
-            'xaxis' : dict(
-                titlefont=dict(
-                family='Courier New, monospace',
-                size=20,
-                color='#7f7f7f'
-            )),
-            'yaxis' : dict(
-                titlefont=dict(
-                family='Helvetica, monospace',
-                size=20,
-                color='#7f7f7f'
-            ))
-        }
-    }
+    print(selector)
+    print(data)
+    figure={'data': data,'layout': {'title': 'Line Representation'}}
     return figure
 
-if __name__ == '__main__':
+if __name__=='__main__':
     app.run_server(debug=True,host='0.0.0.0')
