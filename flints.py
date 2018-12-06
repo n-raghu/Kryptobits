@@ -18,19 +18,8 @@ city_data={
 
 app.layout=htm.Div(
     htm.Div([
-        htm.Div(
-            [
+        htm.Div([
                 htm.H1(children='Hello!!!',className='nine columns'),
-                htm.Img(src="/eae/ndash/image/flints.PNG",className='three columns',
-                    style={
-                        'height': '7%',
-                        'width': '7%',
-                        'float': 'right',
-                        'position': 'relative',
-                        'padding-top': 0,
-                        'padding-right': 0
-                    },
-                ),
                 htm.Div(children=' *Making analytics speak* ',className='nine columns')
             ],className="row"),
 
@@ -58,16 +47,10 @@ app.layout=htm.Div(
             ],className="row"),
 
         htm.Div([
-            htm.Div([
-                dcc.Graph(id='example-graph')], className= 'six columns'
-                ),
-            htm.Div([
-                dcc.Graph(
-                    id='example-graph-2'
-                )], className= 'six columns'
-                )
-        ], className="row")
-    ], className='ten columns offset-by-one')
+            htm.Div([dcc.Graph(id='example-graph')], className='six columns'),
+            htm.Div([dcc.Graph(id='example-graph-2')], className='six columns')
+        ],className="row")
+    ],className='ten columns offset-by-one')
 )
 
 @app.callback(
