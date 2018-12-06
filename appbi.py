@@ -20,7 +20,7 @@ city_data={
 
 tbl=getNAQticker('pfg','INR')
 
-imgFile='/git/flints/flints.PNG'
+imgFile='/git/flints/flints.png'
 en_img=base64.b64encode(open(imgFile,'rb').read())
 
 appBI.layout=htm.Div(
