@@ -43,18 +43,18 @@ app.layout=htm.Div(
                             {'label': 'San Francisco', 'value': 'SF'}
                             ],multi=True,value="MTL",id='Cities'
                         )],
-                    className='six columns',style={'margin-top':'10'}
+                    className='five columns',style={'margin-top':'10'}
                 )
             ],className="row"),
 
         htm.Div([
             htm.Div([dcc.Graph(id='barGraph')], className='six columns'),
-            htm.Div(className='three columns'),
+            htm.Div(htm.H1(''),className='two columns'),
             htm.Div([
                 htm.H3('Share Price: ' +str(tbl['Price'])),
                 htm.H3('Exchange: ' +str(tbl['Exchange'])),
                 htm.H3('100 Shares: ' +str(100*tbl['UnitPrice']))
-                ],className='three columns')
+                ],className='four columns')
         ],className="row")
     ],className='ten columns offset-by-one')
 )
