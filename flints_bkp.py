@@ -51,7 +51,7 @@ app.layout=htm.Div(
                             {'label': 'New York City', 'value': 'NYC'},
                             {'label': 'Montréal', 'value': 'MTL'},
                             {'label': 'San Francisco', 'value': 'SF'}
-                            ],multi=True,value="MTL",id='Cities'
+                            ],multi=True,values="MTL",id='Cities'
                         )],
                     className='six columns',style={'margin-top': '10'}
                 )
@@ -72,7 +72,7 @@ app.layout=htm.Div(
 
 @app.callback(
     dash.dependencies.Output('Cities', 'options'),
-    [dash.dependencies.Input('Country', 'value')])
+    [dash.dependencies.Input('Country', 'values')])
 def set_cities_options(selected_country):
     return [{'label': i, 'value': i} for i in all_options[selected_country]]
 

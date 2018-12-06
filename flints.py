@@ -47,8 +47,8 @@ app.layout=htm.Div(
             ],className="row"),
 
         htm.Div([
-            htm.Div([dcc.Graph(id='example-graph')], className='six columns'),
-            htm.Div([dcc.Graph(id='example-graph-2')], className='six columns')
+            htm.Div([dcc.Graph(id='barGraph')], className='six columns'),
+            htm.Div([dcc.Graph(id='dataGist')], className='six columns')
         ],className="row")
     ],className='ten columns offset-by-one')
 )
@@ -60,17 +60,17 @@ def set_cities_options(selected_country):
     return [{'label': i, 'value': i} for i in all_options[selected_country]]
 
 @app.callback(
-    dash.dependencies.Output('example-graph', 'figure'),
+    dash.dependencies.Output('barGraph', 'figure'),
     [dash.dependencies.Input('Cities', 'value')])
 def update_image_src(selector):
     data=[]
     print (selector)
     for city in selector:
-        data.append({'x': city_data[city]['x'], 'y': city_data[city]['y'],'type': 'bar', 'name': city})
+        data.append({'x':city_data[city]['x'],'y':city_data[city]['y'],'type':'bar','name':city})
     figure = {
         'data': data,
         'layout': {
-            'title': 'Bar Representation',
+            'title': 'Graph Representation',
             'xaxis' : dict(
                 titlefont=dict(
                 family='Courier New, monospace',
