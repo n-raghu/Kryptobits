@@ -23,7 +23,7 @@ appBI.layout=htm.Div(
     htm.Div([
         htm.Div([
                 htm.H1(children='Hello!!!',className='nine columns'),
-                htm.Div([dcc.Markdown(''' *Making analytics speak* ''')],className='nine columns')
+                dcc.Markdown(''' *Making analytics speak* ''')
             ],className="row"),
 
         htm.Div([
