@@ -1,2 +1,2 @@
 import sys
-from flinto import server as application
+from appbi import server as application

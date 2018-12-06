@@ -1,7 +1,8 @@
 from tcalc import *
 
 x_css=['https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebce48fdb52759b2aef506/stylesheet-oil-and-gas.css']
-application=dash.Dash(__name__,external_stylesheets=x_css)
+server=Flask(__name__)
+appBI=dash.Dash(__name__,external_stylesheets=x_css,server=server)
 
 usaList=['New York City','San Francisco','Cincinnati']
 canList=[u'Montreal','Toronto','Ottawa']
@@ -18,7 +19,7 @@ city_data={
 
 tbl=getNAQticker('pfg','INR')
 
-application.layout=htm.Div(
+appBI.layout=htm.Div(
     htm.Div([
         htm.Div([
                 htm.H1(children='Hello!!!',className='nine columns'),
@@ -59,13 +60,13 @@ application.layout=htm.Div(
     ],className='ten columns offset-by-one')
 )
 
-@application.callback(
+@appBI.callback(
     dash.dependencies.Output('Cities','options'),
     [dash.dependencies.Input('Country', 'value')])
 def set_cities_options(selected_country):
     return [{'label': i, 'value': i} for i in all_options[selected_country]]
 
-@application.callback(
+@appBI.callback(
     dash.dependencies.Output('barGraph','figure'),
     [dash.dependencies.Input('Cities','value')])
 def update_image_src(selector):
@@ -75,7 +76,5 @@ def update_image_src(selector):
     figure={'data':data,'layout':{'title':'Graph Representation'}}
     return figure
 
-
-
 if __name__=='__main__':
-    application.run_server(debug=True,host='0.0.0.0')
+    appBI.run_server(debug=True,host='0.0.0.0')
