@@ -1,5 +1,5 @@
 from tcalc import *
-from base64 import b64encode as b64
+import base64
 
 x_css=['https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebce48fdb52759b2aef506/stylesheet-oil-and-gas.css']
 server=Flask(__name__)
@@ -21,7 +21,7 @@ city_data={
 tbl=getNAQticker('pfg','INR')
 
 imgFile='/git/flints/flints.PNG'
-en_img=b64(open(imgFile,'rb').read())
+en_img=base64.b64encode(open(imgFile,'rb').read())
 
 appBI.layout=htm.Div(
     htm.Div([
