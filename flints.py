@@ -39,7 +39,7 @@ app.layout=htm.Div(
                             {'label': 'New York City', 'value': 'NYC'},
                             {'label': 'Montréal', 'value': 'MTL'},
                             {'label': 'San Francisco', 'value': 'SF'}
-                            ],multi=True,values="MTL",id='Cities'
+                            ],multi=True,value="MTL",id='Cities'
                         )],
                     className='six columns',style={'margin-top':'10'}
                 )
@@ -60,7 +60,7 @@ def set_cities_options(selected_country):
 
 @app.callback(
     dash.dependencies.Output('barGraph','figure'),
-    [dash.dependencies.Input('Cities','values')])
+    [dash.dependencies.Input('Cities','value')])
 def update_image_src(selector):
     data=[]
     print (selector)
@@ -88,7 +88,7 @@ def update_image_src(selector):
 
 @app.callback(
     dash.dependencies.Output('dataGist','figure'),
-    [dash.dependencies.Input('Cities','values')])
+    [dash.dependencies.Input('Cities','value')])
 def update_image_src(selector):
     data=[]
     for city in selector:
