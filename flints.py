@@ -43,13 +43,13 @@ app.layout=htm.Div(
                             {'label': 'San Francisco', 'value': 'SF'}
                             ],multi=True,value="MTL",id='Cities'
                         )],
-                    className='five columns',style={'margin-top':'10'}
+                    className='six columns',style={'margin-top':'10'}
                 )
             ],className="row"),
 
         htm.Div([
             htm.Div([dcc.Graph(id='barGraph')], className='six columns'),
-            htm.Div(htm.H1(''),className='one column'),
+            htm.Div(htm.P(''),className='one column'),
             htm.Div([
                 htm.H3('Share Price: ' +str(tbl['Price'])),
                 htm.H3('Exchange: ' +str(tbl['Exchange'])),
@@ -78,4 +78,4 @@ def update_image_src(selector):
 
 
 if __name__=='__main__':
-    app.run_server(debug=True,host='0.0.0.0',port=80)
+    app.run_server(debug=True,host='0.0.0.0',port=8008)
