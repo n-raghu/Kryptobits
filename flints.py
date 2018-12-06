@@ -20,7 +20,7 @@ app.layout=htm.Div(
     htm.Div([
         htm.Div([
                 htm.H1(children='Hello!!!',className='nine columns'),
-                htm.Div(children=' *Making analytics speak* ',className='nine columns')
+                htm.Div([dcc.Markdown(''' *Making analytics speak* ''')],className='nine columns')
             ],className="row"),
 
         htm.Div([
