@@ -7,7 +7,8 @@ appBI=dash.Dash(__name__,external_stylesheets=x_css,server=server)
 
 usaList=['New York City','San Francisco','Cincinnati']
 canList=[u'Montreal','Toronto','Ottawa']
-all_options={'US':usaList,'Canada':canList,'All':usaList+canList}
+ndqList=yfi.tickers_nasdaq()
+all_options={'US':ndqList,'Canada':canList,'All':usaList+canList}
 
 city_data={
     'San Francisco': {'x': [1, 2, 3], 'y': [4, 1, 2]},
@@ -25,18 +26,7 @@ en_img=base64.b64encode(open(imgFile,'rb').read())
 
 appBI.layout=htm.Div(
     htm.Div([
-        htm.Div([
-            htm.H1(children='Hello!, We make analytics speak ',className='nine columns'),
-            htm.Img(src='data:image/png;base64,{}'.format(en_img),className='three columns',
-                    style={
-                        'height': '7%',
-                        'width': '7%',
-                        'float': 'right',
-                        'position': 'relative',
-                        'padding-top': 0,
-                        'padding-right': 0
-                    },
-                )],className="row"),
+        htm.Div([htm.H1(children='Hello!, We make analytics speak ',className='nine columns')],className="row"),
         htm.Div([
                 htm.Div([
                         dcc.Markdown(''' **Country** '''),
@@ -88,4 +78,4 @@ def update_image_src(selector):
     return figure
 
 if __name__=='__main__':
-    appBI.run_server(debug=True,host='0.0.0.0')
+    appBI.run_server(debug=True,host='0.0.0.0',port=8888)
