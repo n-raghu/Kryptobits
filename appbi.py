@@ -1,5 +1,4 @@
 from tcalc import *
-import base64
 
 x_css=['https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebce48fdb52759b2aef506/stylesheet-oil-and-gas.css']
 server=Flask(__name__)
@@ -9,6 +8,7 @@ usaList=['New York City','San Francisco','Cincinnati']
 canList=[u'Montreal','Toronto','Ottawa']
 ndqList=yfi.tickers_nasdaq()
 all_options={'US':ndqList,'Canada':canList,'All':usaList+canList}
+tbl=getNAQticker('pfg','INR')
 
 city_data={
     'San Francisco': {'x': [1, 2, 3], 'y': [4, 1, 2]},
@@ -18,11 +18,6 @@ city_data={
     'Toronto': {'x': [1, 2, 3], 'y': [4, 7, 3]},
     'Ottawa': {'x': [1, 2, 3], 'y': [2, 3, 3]}
 }
-
-tbl=getNAQticker('pfg','INR')
-
-imgFile='/git/flints/flints.png'
-en_img=base64.b64encode(open(imgFile,'rb').read())
 
 appBI.layout=htm.Div(
     htm.Div([
