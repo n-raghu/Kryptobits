@@ -15,9 +15,17 @@ def getNAQticker(tkr,rnum=5):
 		tkrData=odict([('Ticker',tkr),('Price',tkrcost)])
 	return tkrData
 
-def getXchVal(currency,rnum=5):
-	if(currency):
-		cnc=currency
+xlist=popForex()
+
+def getXchSet(currency,ndays=188,rnum=3):
+	fullSet=odict()
+	if(currency in xlist):
+		today=dtm.utcnow().date()
+		i=0
+		while(i<ndays):
+			day=today-timedelta(i)
+			fullSet[day]=round(ccr.get_rate('USD',currency,day),rnum)
+			i+=1
 	else:
-		cnc='USD'
-	return round(ccr.get_rate('USD',cnc),rnum)
+		fullSet=False
+	return fullSet
