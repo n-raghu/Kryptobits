@@ -1,31 +1,54 @@
 from adsLib import *
 
-ccr=ccrates()
-
-def popForex():
-	flist=list(ccr.get_rates('USD',dtm.utcnow()).keys())
-	flist.append('USD')
-	return flist
-
-def getNAQticker(tkr,rnum=5):
-	if(tkr==None):
-		tkrData=odict([('Ticker',tkr),('Price',0)])
-	else:
-		tkrcost=round(yfi.get_live_price(tkr),rnum)
-		tkrData=odict([('Ticker',tkr),('Price',tkrcost)])
-	return tkrData
-
+ccc=cccodes()
+connexion=mcx(dbConStr)
+today=dtm.utcnow()
 xlist=popForex()
 
-def getXchSet(currency,ndays=188,rnum=3):
-	fullSet=odict()
+def scrapeXchSet(currency,ndays=188):
+	doc=odict()
 	if(currency in xlist):
-		today=dtm.utcnow().date()
-		i=0
-		while(i<ndays):
-			day=today-timedelta(i)
-			fullSet[day]=round(ccr.get_rate('USD',currency,day),rnum)
+		i=-1
+		rates=[]
+		while(i<=ndays):
+			day=today-timedelta(abs(i))
+			tmpVal=ccr.get_rate('USD',currency,day)
+			rates.append({'day':day,'cost':tmpVal,'recorded':today})
+			if(i==0):
+				i+=1
 			i+=1
+		doc['rates']=rates
+		doc['_id']=currency
+		doc['code']=ccc.get_symbol(currency)
+		doc['currency']=ccc.get_currency_name(currency)
 	else:
-		fullSet=False
-	return fullSet
+		doc=False
+	return doc
+
+def writeNewXch(onecnc=False):
+	odo=False
+	lox=[]
+	xdays=dtm.utcnow()-dtm(2016,1,1,1,1,1,111)
+	if(onecnc):
+		xdict=scrapeXchSet(onecnc,ndays=5)
+		if(xdict):
+			lox.append(xdict)
+		else:
+			lox=False
+	else:
+		for xxc in xlist:
+			xdict=scrapeXchSet(xxc,ndays=2)
+			if(xdict):
+				lox.append(xdict)
+			else:
+				lox=False
+	if(lox):
+		odo=connexion['ads']['xchange'].insert_many(lox)
+	return odo
+
+def writeOldXch():
+	oldSet=list(connexion['ads']['xchange'].find())
+	todayRates=[]
+	for currency in xlist:
+		todayRates.append(scrapeXchSet(currency,-1))
+	return todayRates

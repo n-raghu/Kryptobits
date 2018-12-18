@@ -1,4 +1,4 @@
-from tcalc import *
+from adsLib import *
 
 x_css=['https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebce48fdb52759b2aef506/stylesheet-oil-and-gas.css']
 server=Flask(__name__)
@@ -6,37 +6,38 @@ appBI=dash.Dash(__name__,external_stylesheets=x_css,server=server)
 
 ndqList=yfi.tickers_nasdaq()
 snpList=yfi.tickers_sp500()
-fexList=popForex()
+fexList=list(xchCodes())
 all_options=ndqList+snpList
-gblDict=odict([('tickr',getNAQticker('pfg')['Price']),('shares',100),('xch',71)])
-xchSet=odict()
+gblDict=odict([('tickr',getNAQticker('pfg')['Price']),('shares',100),('xch',ccr.get_rate('USD','INR'))])
+xchSet=getXchSet().append(refreshXchSet())
+classVol=odict([('graph','ten columns'),('tkr','three columns'),('cnc','three columns'),('shares','three columns'),('r1_spc','one column')])
 
 appBI.layout=htm.Div(
 	htm.Div([
 		htm.Div([htm.H3(children='Hello!, Visualizing Analytics',className='nine columns')],className="row"),
 		htm.Div([
 			htm.Div([
-				htm.Div(dcc.Markdown(''' **Ticker**'''),className='three columns'),
-				htm.Div(htm.P(''),className='one column'),
-				htm.Div(dcc.Markdown(''' **Popular Currecies**'''),className='two columns'),
-				htm.Div(htm.P(''),className='one column'),
-				htm.Div(dcc.Markdown(''' **Shares you've**'''),className='three columns'),
-				htm.Div(dcc.Dropdown(options=[{'label': i, 'value': i} for i in all_options],value="PFG",id='allTicks'),className='three columns'),
-				htm.Div(htm.P(''),className='one column'),
-				htm.Div(dcc.Dropdown(options=[{'label': i, 'value': i} for i in fexList],value="INR",id='xCH'),className='two columns'),
-				htm.Div(htm.P(''),className='one column'),
-				htm.Div(dcc.Input(id='xcalc',type='number',value=100,className='two columns')),
+				htm.Div(dcc.Markdown(''' **Ticker**'''),className=classVol['tkr']),
+				htm.Div(htm.P(''),className=classVol['r1_spc']),
+				htm.Div(dcc.Markdown(''' **Popular Currecies**'''),className=classVol['cnc']),
+				htm.Div(htm.P(''),className=classVol['r1_spc']),
+				htm.Div(dcc.Markdown(''' **Shares you've**'''),className=classVol['shares']),
+				htm.Div(dcc.Dropdown(options=[{'label':i, 'value':i} for i in all_options],value="PFG",id='allTicks'),className=classVol['tkr']),
+				htm.Div(htm.P(''),className=classVol['r1_spc']),
+				htm.Div(dcc.Dropdown(options=[{'label':i['code'], 'value':i['currency']} for i in fexList],value="INR",id='xCH'),className=classVol['cnc']),
+				htm.Div(htm.P(''),className=classVol['r1_spc']),
+				htm.Div(dcc.Input(id='xcalc',type='number',value=100,className=classVol['shares'])),
 				],style={'margin-top':'10'}
 				)],className="row"),
 		htm.Div([
-			htm.Div(id='tkrBox',className='three columns'),
-			htm.Div(htm.P(''),className='one column'),
-			htm.Div(id='xchBox',className='two columns'),
-			htm.Div(htm.P(''),className='one column'),
-			htm.Div(id='shrBox',className='three columns')
+			htm.Div(id='tkrBox',className=classVol['tkr']),
+			htm.Div(htm.P(''),className=classVol['r1_spc']),
+			htm.Div(id='xchBox',className=classVol['cnc']),
+			htm.Div(htm.P(''),className=classVol['r1_spc']),
+			htm.Div(id='shrBox',className=classVol['shares'])
 			],className="row"),
-		htm.Div([dcc.Graph(id='tkrGraph',className='eleven columns')],className='row'),
-		htm.Div([dcc.Graph(id='xchGraph',className='eleven columns')],className='row'),
+		htm.Div([dcc.Graph(id='tkrGraph',className=classVol['graph'])],className='row'),
+		htm.Div([dcc.Graph(id='xchGraph',className=classVol['graph'])],className='row'),
 		],className='ten columns offset-by-one'
 ))
 
@@ -51,21 +52,13 @@ def refresh_stocks(tickr):
 @appBI.callback(Output('xchBox','children'),[Input('xCH','value')])
 def refresh_currency(cnc):
 	global gblDict,xchSet
-	today=dtm.utcnow().date()
-	if cnc in xchSet:
-		xchSet[cnc][today]=round(ccr.get_rate('USD',cnc),3)
-	else:
-		xSet=getXchSet(cnc,ndays=7)
-		if(xSet):
-			print('Add ' +cnc+ ' to dictiionary.')
-			xchSet[cnc]=xSet
-	gblDict['xch']=xchSet[cnc][today]
-	return [htm.H5(' ~' +str(gblDict['xch']))]
+	xchSet.update(refreshXchSet(cnc))
+	gblDict['xch']=xchSet.loc[cnc,'Now']['cost']
+	return [htm.H5(' ~' +str(xchSet.loc[cnc,'Now']['cost']))]
 
 @appBI.callback(Output('shrBox','children'),[Input('xcalc','value')])
 def refresh_share(shares):
 	global gblDict
-	today=dtm.utcnow().date()
 	gblDict['shares']=shares
 	bookVal=round(gblDict['xch']*gblDict['tickr']*gblDict['shares'],3)
 	return [htm.H5(bookVal)]
@@ -81,9 +74,8 @@ def refresh_tkrTrend(tkr):
 @appBI.callback(Output('xchGraph','figure'),[Input('xCH','value')])
 def refresh_xchTrend(cnc):
 	global xchSet
-	if cnc in xchSet:
-		dfo=pdf(data={'dtt':list(xchSet[cnc].keys()),'prc':list(xchSet[cnc].values())})
-		trace={'x':dfo.dtt,'y':dfo.prc}
+	if cnc in xchSet.index:
+		trace={'x':xchSet.loc[cnc]['day'],'y':xchSet.loc[cnc]['cost']}
 	else:
 		trace={'x':[1,2,],'y':[2,1]}
 	return { 'data':[trace],'layout':{'title':'Exchange Trends'} }
