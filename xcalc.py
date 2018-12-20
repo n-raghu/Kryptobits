@@ -28,7 +28,6 @@ def scrapeXchSet(currency,ndays=188):
 
 def writeFullXch(onecnc=False,devqa=False):
 	odo=False
-	lox=[]
 	if(devqa):
 		xdays=5
 	else:
@@ -37,18 +36,15 @@ def writeFullXch(onecnc=False,devqa=False):
 	if(onecnc):
 		xdict=scrapeXchSet(onecnc,ndays=xdays)
 		if(xdict):
-			lox.append(xdict)
+			odo=cnxCH.insert_one(xdict)
 		else:
 			lox=False
 	else:
+		odo=[]
 		for xxc in xlist:
 			xdict=scrapeXchSet(xxc,ndays=xdays)
 			if(xdict):
-				lox.append(xdict)
-			else:
-				lox=False
-	if(lox):
-		odo=cnxCH.insert_many(lox)
+				odo.append(cnxCH.insert_one(xdict))
 	return odo
 
 def writeNewXch():
@@ -60,3 +56,5 @@ def writeNewXch():
 	for rate in todayRates:
 		bucket.find({'_id':rate['_id']},{'$push':{'rates':rate['rates'][0]}})
 	return bucket.execute()
+
+def xchCleanser():
