@@ -25,19 +25,22 @@ def scrapeXchSet(currency,ndays=188):
 		doc=False
 	return doc
 
-def writeNewXch(onecnc=False):
+def writeNewXch(onecnc=False,devqa=False):
 	odo=False
 	lox=[]
-	xdays=dtm.utcnow()-dtm(2016,1,1,1,1,1,111)
+	if(devqa):
+		xdays=5
+	else:
+		xdays=dtm.utcnow()-dtm(2016,1,1,1,1,1,111)
 	if(onecnc):
-		xdict=scrapeXchSet(onecnc,ndays=5)
+		xdict=scrapeXchSet(onecnc,ndays=xdays)
 		if(xdict):
 			lox.append(xdict)
 		else:
 			lox=False
 	else:
 		for xxc in xlist:
-			xdict=scrapeXchSet(xxc,ndays=2)
+			xdict=scrapeXchSet(xxc,ndays=xdays)
 			if(xdict):
 				lox.append(xdict)
 			else:
