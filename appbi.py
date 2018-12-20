@@ -4,10 +4,8 @@ x_css=['https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebc
 server=Flask(__name__)
 appBI=dash.Dash(__name__,external_stylesheets=x_css,server=server)
 
-ndqList=yfi.tickers_nasdaq()
-snpList=yfi.tickers_sp500()
 fexList=list(xchCodes())
-all_options=ndqList+snpList
+tkrList=yfi.tickers_nasdaq()+yfi.tickers_sp500()
 gblDict=odict([('tickr',getNAQticker('pfg')['Price']),('shares',100),('xch',ccr.get_rate('USD','INR'))])
 xchSet=getXchSet().append(refreshXchSet())
 classVol=odict([('graph','ten columns'),('tkr','three columns'),('cnc','three columns'),('shares','three columns'),('r1_spc','one column')])
@@ -22,7 +20,7 @@ appBI.layout=htm.Div(
 				htm.Div(dcc.Markdown(''' **Popular Currecies**'''),className=classVol['cnc']),
 				htm.Div(htm.P(''),className=classVol['r1_spc']),
 				htm.Div(dcc.Markdown(''' **Shares you've**'''),className=classVol['shares']),
-				htm.Div(dcc.Dropdown(options=[{'label':i, 'value':i} for i in all_options],value="PFG",id='allTicks'),className=classVol['tkr']),
+				htm.Div(dcc.Dropdown(options=[{'label':i, 'value':i} for i in tkrList],value="PFG",id='allTicks'),className=classVol['tkr']),
 				htm.Div(htm.P(''),className=classVol['r1_spc']),
 				htm.Div(dcc.Dropdown(options=[{'label':i['code'], 'value':i['currency']} for i in fexList],value="INR",id='xCH'),className=classVol['cnc']),
 				htm.Div(htm.P(''),className=classVol['r1_spc']),
@@ -52,6 +50,7 @@ def refresh_stocks(tickr):
 @appBI.callback(Output('xchBox','children'),[Input('xCH','value')])
 def refresh_currency(cnc):
 	global gblDict,xchSet
+    xchSet.update(getXchSet())
 	xchSet.update(refreshXchSet(cnc))
 	gblDict['xch']=xchSet.loc[cnc,'Now']['cost']
 	return [htm.H5(' ~' +str(xchSet.loc[cnc,'Now']['cost']))]
