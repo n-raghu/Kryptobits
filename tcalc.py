@@ -4,6 +4,7 @@ ccc=cccodes()
 connexion=mcx(dbConStr)
 today=dtm.utcnow()
 xlist=popForex()
+cnxCH=connexion['ads']['xchange']
 
 def scrapeXchSet(currency,ndays=188):
 	doc=odict()
@@ -25,7 +26,7 @@ def scrapeXchSet(currency,ndays=188):
 		doc=False
 	return doc
 
-def writeNewXch(onecnc=False,devqa=False):
+def writeFullXch(onecnc=False,devqa=False):
 	odo=False
 	lox=[]
 	if(devqa):
@@ -47,12 +48,15 @@ def writeNewXch(onecnc=False,devqa=False):
 			else:
 				lox=False
 	if(lox):
-		odo=connexion['ads']['xchange'].insert_many(lox)
+		odo=cnxCH.insert_many(lox)
 	return odo
 
-def writeOldXch():
-	oldSet=list(connexion['ads']['xchange'].find())
+def writeNewXch():
+	oldSet=list(cnxCH.find())
+	bucket=cnxCH.initialize_unordered_bulk_op()
 	todayRates=[]
 	for currency in xlist:
 		todayRates.append(scrapeXchSet(currency,-1))
-	return todayRates
+	for rate in todayRates:
+		bucket.find({'_id':rate['_id']},{'$push':{'rates':rate['rates'][0]}})
+	return bucket.execute()
