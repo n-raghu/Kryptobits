@@ -50,7 +50,7 @@ def refresh_stocks(tickr):
 @appBI.callback(Output('xchBox','children'),[Input('xCH','value')])
 def refresh_currency(cnc):
 	global gblDict,xchSet
-    xchSet.update(getXchSet())
+	xchSet.update(getXchSet())
 	xchSet.update(refreshXchSet(cnc))
 	gblDict['xch']=xchSet.loc[cnc,'Now']['cost']
 	return [htm.H5(' ~' +str(xchSet.loc[cnc,'Now']['cost']))]
