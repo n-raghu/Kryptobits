@@ -32,6 +32,7 @@ def writeNewXch(onecnc=False,devqa=False):
 		xdays=5
 	else:
 		xdays=dtm.utcnow()-dtm(2016,1,1,1,1,1,111)
+		xdays=xdays.days
 	if(onecnc):
 		xdict=scrapeXchSet(onecnc,ndays=xdays)
 		if(xdict):
