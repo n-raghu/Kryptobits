@@ -4,6 +4,7 @@ while(True):
 	xchData=[]
 	xlist=popForex()
 	xchDataDicts=list(cnxCH.find())
+	invokeDB=False
 	if len(xchDataDicts)==0:
 		for x in xlist:
 			writeFullXch(x)

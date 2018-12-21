@@ -7,6 +7,8 @@ connexion=mcx(dbConStr)
 today=dtm.utcnow()
 xlist=popForex()
 cnxCH=connexion['ads']['xchange']
+cnxLog=connexion['ads']['logActions']
+cnxBeat=connexion['ads']['logPulse']
 
 def scrapeXchSet(currency,ndays=5):
 	doc=odict()
@@ -38,6 +40,7 @@ def writeFullXch(cnc,prd=False):
 	xdict=scrapeXchSet(cnc,ndays=xdays)
 	if(xdict):
 		odo=cnxCH.bulk_write([DeleteMany({'_id':xdict['_id']}),InsertOne(xdict)])
+		cnxLog.insert_one({'epoch':dtm.utcnow(),'gist':log,'module':'xch','app':'S-Ticker'})
 	else:
 		odo=False
 	return odo
@@ -47,7 +50,14 @@ def pushNewXch():
 	bucket=cnxCH.initialize_unordered_bulk_op()
 	todayRates=[]
 	for currency in xlist:
-		todayRates.append(scrapeXchSet(currency,-1))
+		doc=scrapeXchSet(currency,-1)
+		dbDoc=list(cnxCH.find({'_id':currency},{'rates':1}))
+		if(doc in DB):
+			continue
+		else:
+			todayRates.append(doc)
 	for rate in todayRates:
-		bucket.find({'_id':rate['_id']},{'$push':{'rates':rate['rates'][0]}})
+		bucket.find({'_id':rate['_id']}).update({'$push':{'rates':rate['rates'][0]}})
+	log=bucket.execute()
+	cnxLog.insert_one({'epoch':dtm.utcnow(),'gist':log,'module':'xch','app':'S-Ticker'})
 	return bucket.execute()
