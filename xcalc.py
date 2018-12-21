@@ -1,4 +1,5 @@
 from adsLib import *
+from time import mktime,sleep as ziz
 
 ccc=cccodes()
 connexion=mcx(dbConStr)

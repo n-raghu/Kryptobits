@@ -7,7 +7,6 @@ from yahoo_fin import stock_info as yfi
 from forex_python.converter import CurrencyRates as ccrates,CurrencyCodes as cccodes
 from pymongo import MongoClient as mcx
 from flask import Flask
-from time import mktime
 
 dbConStr=soc.gethostbyname(soc.gethostname()) +':36069'
 ccr=ccrates()
