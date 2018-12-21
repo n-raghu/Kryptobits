@@ -6,7 +6,7 @@ today=dtm.utcnow()
 xlist=popForex()
 cnxCH=connexion['ads']['xchange']
 
-def scrapeXchSet(currency,ndays=188):
+def scrapeXchSet(currency,ndays=5):
 	doc=odict()
 	if(currency in xlist):
 		i=-1
@@ -14,7 +14,8 @@ def scrapeXchSet(currency,ndays=188):
 		while(i<=ndays):
 			day=today-timedelta(abs(i))
 			tmpVal=ccr.get_rate('USD',currency,day)
-			rates.append({'day':day,'cost':tmpVal,'recorded':today})
+			stamp=mktime(today.timetuple())
+			rates.append({'day':day,'cost':tmpVal,'recorded':today,'stamp':stamp})
 			if(i==0):
 				i+=1
 			i+=1
@@ -26,28 +27,20 @@ def scrapeXchSet(currency,ndays=188):
 		doc=False
 	return doc
 
-def writeFullXch(onecnc=False,devqa=False):
-	odo=False
-	if(devqa):
-		xdays=5
-	else:
+def writeFullXch(cnc,prd=False):
+	if(prd):
 		xdays=dtm.utcnow()-dtm(2016,1,1,1,1,1,111)
 		xdays=xdays.days
-	if(onecnc):
-		xdict=scrapeXchSet(onecnc,ndays=xdays)
-		if(xdict):
-			odo=cnxCH.insert_one(xdict)
-		else:
-			lox=False
 	else:
-		odo=[]
-		for xxc in xlist:
-			xdict=scrapeXchSet(xxc,ndays=xdays)
-			if(xdict):
-				odo.append(cnxCH.insert_one(xdict))
+		xdays=5
+	xdict=scrapeXchSet(cnc,ndays=xdays)
+	if(xdict):
+		odo=cnxCH.update_one({'_id':xdict['_id']},xdict,upsert=True)
+	else:
+		odo=False
 	return odo
 
-def writeNewXch():
+def pushNewXch():
 	oldSet=list(cnxCH.find())
 	bucket=cnxCH.initialize_unordered_bulk_op()
 	todayRates=[]
@@ -56,6 +49,3 @@ def writeNewXch():
 	for rate in todayRates:
 		bucket.find({'_id':rate['_id']},{'$push':{'rates':rate['rates'][0]}})
 	return bucket.execute()
-
-def xchCleanser():
-	

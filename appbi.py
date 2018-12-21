@@ -1,4 +1,7 @@
 from adsLib import *
+import dash,dash_core_components as dcc,dash_html_components as htm,dash_table as dtl
+from dash.dependencies import Input, Output
+from plotly import graph_objs as go
 
 x_css=['https://cdn.rawgit.com/plotly/dash-app-stylesheets/2d266c578d2a6e8850ebce48fdb52759b2aef506/stylesheet-oil-and-gas.css']
 server=Flask(__name__)
