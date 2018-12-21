@@ -1,5 +1,6 @@
 from adsLib import *
 from time import mktime,sleep as ziz
+from pymongo import InsertOne, DeleteMany
 
 ccc=cccodes()
 connexion=mcx(dbConStr)
@@ -36,7 +37,7 @@ def writeFullXch(cnc,prd=False):
 		xdays=5
 	xdict=scrapeXchSet(cnc,ndays=xdays)
 	if(xdict):
-		odo=cnxCH.update_one({'_id':xdict['_id']},xdict,upsert=True)
+		odo=cnxCH.bulk_write([DeleteMany({'_id':xdict['_id']}),InsertOne(xdict)])
 	else:
 		odo=False
 	return odo
