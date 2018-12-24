@@ -42,7 +42,7 @@ def writeFullXch(cnc,prd=False):
 		odo=cnxCH.bulk_write([DeleteMany({'_id':xdict['_id']}),InsertOne(xdict)])
 	else:
 		odo=False
-	cnxLog.insert_one({'env':prd,'module':'writeFullXch','epoch':dtm.utcnow(),'gist':odo,'service':'xch','app':'S-Ticker'})
+	cnxLog.insert_one({'env':prd,'module':'writeFullXch','epoch':dtm.utcnow(),'gist':str(odo),'service':'xch','app':'S-Ticker'})
 	return odo
 
 def pushNewXch():
@@ -59,5 +59,5 @@ def pushNewXch():
 	for rate in todayRates:
 		bucket.find({'_id':rate['_id']}).update({'$push':{'rates':rate['rates'][0]}})
 	log=bucket.execute()
-	cnxLog.insert_one({'module':'pushNewXch','epoch':dtm.utcnow(),'gist':log,'service':'xch','app':'S-Ticker'})
+	cnxLog.insert_one({'module':'pushNewXch','epoch':dtm.utcnow(),'gist':str(log),'service':'xch','app':'S-Ticker'})
 	return bucket.execute()
