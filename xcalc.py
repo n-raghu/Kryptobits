@@ -4,7 +4,7 @@ from pymongo import InsertOne, DeleteMany
 
 ccc=cccodes()
 connexion=mcx(dbConStr)
-today=dtm.utcnow()
+today=dtm.combine(dtm.utcnow().date(),dtm.min.time())
 xlist=popForex()
 cnxCH=connexion['ads']['xchange']
 cnxLog=connexion['ads']['logActions']
@@ -40,9 +40,9 @@ def writeFullXch(cnc,prd=False):
 	xdict=scrapeXchSet(cnc,ndays=xdays)
 	if(xdict):
 		odo=cnxCH.bulk_write([DeleteMany({'_id':xdict['_id']}),InsertOne(xdict)])
-		cnxLog.insert_one({'epoch':dtm.utcnow(),'gist':log,'module':'xch','app':'S-Ticker'})
 	else:
 		odo=False
+	cnxLog.insert_one({'env':prd,'module':'writeFullXch','epoch':dtm.utcnow(),'gist':odo,'service':'xch','app':'S-Ticker'})
 	return odo
 
 def pushNewXch():
@@ -51,13 +51,13 @@ def pushNewXch():
 	todayRates=[]
 	for currency in xlist:
 		doc=scrapeXchSet(currency,-1)
-		dbDoc=list(cnxCH.find({'_id':currency},{'rates':1}))
-		if(doc in DB):
+		dbDoc=list(cnxCH.find({'_id':currency,'rates.stamp':doc['rates'][0]},{'rates':1,'_id':0}))
+		if(dbDoc):
 			continue
 		else:
 			todayRates.append(doc)
 	for rate in todayRates:
 		bucket.find({'_id':rate['_id']}).update({'$push':{'rates':rate['rates'][0]}})
 	log=bucket.execute()
-	cnxLog.insert_one({'epoch':dtm.utcnow(),'gist':log,'module':'xch','app':'S-Ticker'})
+	cnxLog.insert_one({'module':'pushNewXch','epoch':dtm.utcnow(),'gist':log,'service':'xch','app':'S-Ticker'})
 	return bucket.execute()
