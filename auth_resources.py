@@ -1,6 +1,7 @@
 from flask_restful import Resource
 from flask_jwt_extended import create_access_token
 from flask import jsonify, abort, request, make_response
+from sqlalchemy import create_engine as dbeng, text as alchemyText
 
 from auth_model import User as U, UserRole as UR, cfg
 
