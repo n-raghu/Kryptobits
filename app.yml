@@ -11,6 +11,11 @@ app:
   host: 0.0.0.0
   port: 39001
 
+auth:
+  debug: true
+  host: 0.0.0.0
+  port: 39002
+
 key:
   key_size: 4096
   jwt_key: gAAAAABdZLc584cojn5bvLQiB7cnuk_NiMhd7PGzd9RohrWxK2ITiBW9q8MpLgL1EuDqLPIk9cEzx4EHMi1btb5rstz74a3CDnk5vZwgdQdDcGW9c5cat7o=
