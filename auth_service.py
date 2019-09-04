@@ -15,7 +15,7 @@ api = Api(app)
 api.add_resource(GenNewToken,'/auth/v1/login')
 
 app.run(
-        debug=cfg['app']['debug'],
-        host=cfg['app']['host'],
-        port=cfg['app']['port']
+        debug=cfg['auth']['debug'],
+        host=cfg['auth']['host'],
+        port=cfg['auth']['port']
 )

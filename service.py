@@ -3,7 +3,7 @@ from flask_restful import Api
 from cryptography.fernet import Fernet
 from flask_jwt_extended import JWTManager
 
-from resources import cfg, KeyStore, PvtKey
+from resources import cfg, PubKey, PvtKey
 
 app=Flask(__name__)
 fnt_instance = Fernet(cfg['key']['global_key'].encode())
@@ -12,7 +12,7 @@ fnt_instance = False
 jwt = JWTManager(app)
 api = Api(app)
 
-api.add_resource(KeyStore,'/krs/v1/pubkey')
+api.add_resource(PubKey,'/krs/v1/pubkey')
 api.add_resource(PvtKey,'/krs/v1/pvtkey')
 
 app.run(
