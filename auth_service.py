@@ -12,7 +12,7 @@ fnt_instance = False
 jwt = JWTManager(app)
 api = Api(app)
 
-api.add_resource(GenNewToken,'/auth/v1/login')
+api.add_resource(GenNewToken, '/auth/v1/login')
 
 app.run(
         debug=cfg['auth']['debug'],

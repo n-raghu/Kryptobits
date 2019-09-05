@@ -6,6 +6,12 @@ datastore:
   db: krsdb
   schema: public
 
+kafka:
+  host: 172.16.1.141
+  port: 9092
+  cluster: false
+  enable: false
+
 app:
   debug: true
   host: 0.0.0.0

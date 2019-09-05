@@ -1,4 +1,10 @@
+import sys
+from uuid import uuid4 as UU4
+from datetime import timedelta as tdt, datetime as dtm
+
 from flask_restful import Resource
+from confluent_kafka import Producer
+from sqlalchemy.orm import sessionmaker
 from flask_jwt_extended import create_access_token
 from flask import jsonify, abort, request, make_response
 from sqlalchemy import create_engine as dbeng, text as alchemyText
@@ -6,7 +12,11 @@ from sqlalchemy import create_engine as dbeng, text as alchemyText
 from auth_model import User as U, UserRole as UR, cfg
 
 LIFE_TIME_TOKEN = 3116969069
+KAFKA = cfg['kafka']['enable']
 urx = 'postgresql://' +cfg['datastore']['uid']+ ':' +cfg['datastore']['pwd']+ '@' +cfg['datastore']['host']+ ':' +str(cfg['datastore']['port'])+ '/' +cfg['datastore']['db']
+
+if KAFKA:
+	P = Producer({'bootstrap.servers': cfg['kafka']['host']})
 
 def dataSession(urx):
 	pgx = dbeng(urx)
@@ -36,6 +46,7 @@ class GenNewToken(Resource):
 			else:
 				access_token = create_access_token(identity=uname,expires_delta=tdt(seconds=tokenTime))
 			eventDoc = {'event':'access-tokens','action':'gen-access-token','etime':dtm.utcnow(),'event_owner':uname,'eventid':UU4().hex}
-			P.poll(0)
-			P.produce('topic-events',packb(eventDoc,default=encode_dtm,use_bin_type=True),callback=delivery_report)
+			if KAFKA:
+				P.poll(0)
+				P.produce('topic-events',packb(eventDoc,default=encode_dtm,use_bin_type=True),callback=delivery_report)
 		return jsonify(access_token)

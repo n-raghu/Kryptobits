@@ -20,6 +20,7 @@ urx = 'postgresql://' +cfg['datastore']['uid']+ ':' +cfg['datastore']['pwd']+ '@
 now = tpc()
 pub_key_store = []
 pvt_key_store = []
+KAFKA = cfg['kafka']['enable']
 master_key = cfg['key']['master_key']
 global_key = cfg['key']['global_key']
 key_size = int(cfg['key']['key_size'])
@@ -70,6 +71,9 @@ for _ in pub_key_store_en:
 		'pub_key' : _[1].decode(),
 		}
 	pub_key_store.append(_tup_)
+
+if KAFKA:
+	P = Producer({'bootstrap.servers': cfg['kafka']['host']})
 
 class PubKey(Resource):
 	def get(self):
