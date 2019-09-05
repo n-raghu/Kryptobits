@@ -13,16 +13,14 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet, MultiFernet as MFT
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from model import Keys as K, KeyRequester as KR
-
-with open('app.yml', 'r') as yFile:
-	cfg=safe_load(yFile)
+from model import Keys as K, KeyRequester as KR, cfg
 
 urx = 'postgresql://' +cfg['datastore']['uid']+ ':' +cfg['datastore']['pwd']+ '@' +cfg['datastore']['host']+ ':' +str(cfg['datastore']['port'])+ '/' +cfg['datastore']['db']
 
 now = tpc()
 pub_key_store = []
 pvt_key_store = []
+KAFKA = cfg['kafka']['enable']
 master_key = cfg['key']['master_key']
 global_key = cfg['key']['global_key']
 key_size = int(cfg['key']['key_size'])
@@ -74,7 +72,10 @@ for _ in pub_key_store_en:
 		}
 	pub_key_store.append(_tup_)
 
-class KeyStore(Resource):
+if KAFKA:
+	P = Producer({'bootstrap.servers': cfg['kafka']['host']})
+
+class PubKey(Resource):
 	def get(self):
 		return jsonify(random.choice(pub_key_store))
 

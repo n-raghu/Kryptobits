@@ -22,24 +22,18 @@ DT=say.Date
 NUM=say.NUMERIC
 LBY=say.LargeBinary
 
-class Keys(BASE):
-	__tablename__='rsakeys_v1'
-	active=COL(BOOL)
-	deprecated=COL(BOOL)
-	key_id=COL(TXT)
-	pub_key=COL(LBY)
-	pvt_key=COL(LBY)
-	time_created=COL(TIMES)
-	last_mod_stamp=COL(TIMES)
-	deprecation_stamp=COL(TIMES)
-	tbl_id=COL(UUID(as_uuid=True), primary_key=True)
+class User(BASE):
+	__tablename__ = 'users'
+	uid = COL(TXT,primary_key=True)
+	pwd = COL(TXT)
+	user_name = COL(TXT)
+	roleid = COL(INT)
 
-class KeyRequester(BASE):
-	__tablename__ = 'key_requester_events'
-	key_id=COL(TXT)
-	requester=COL(TXT)
-	request_stamp=COL(TIMES)
-	tbl_id=COL(UUID(as_uuid=True), primary_key=True)
+class UserRole(BASE):
+	__tablename__ = 'userroles'
+	rid = COL(INT,primary_key=True)
+	rolename = COL(TXT)
+	tokentime = COL(INT)
 
 if __name__=='__main__':
 	from yaml import safe_load
