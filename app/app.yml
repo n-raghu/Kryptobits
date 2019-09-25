@@ -1,6 +1,6 @@
 datastore:
-  host: 172.16.1.164
-  port: 54321
+  host: 172.17.0.2
+  port: 5432
   uid: postgres
   pwd: reporter
   db: krsdb

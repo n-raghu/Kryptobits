@@ -10,7 +10,7 @@ try:
 except Exception as err:
     sys.exit(err)
 
-uri = 'postgresql://' +cfg['datastore']['uid']+ ':' +cfg['datastore']['pwd']+ '@' +cfg['datastore']['host']+ ':' +str(cfg['datastore']['port'])+ '/' +cfg['datastore']['db']
+uri = 'postgresql://' +cfg['datastore']['uid']+ ':' +cfg['datastore']['pwd']+ '@' +cfg['datastore']['host']+ ':' +str(cfg['datastore']['port'])+ '/postgres'
 dbn = cfg['datastore']['db']
 
 def dbOps(urx,q,write=False,iso_level=False):
