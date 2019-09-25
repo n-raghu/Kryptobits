@@ -77,18 +77,19 @@ if KAFKA:
 pub_key_point = '/krs/v1/pub_key'
 pvt_key_point = '/krs/v1/pvt_key'
 
+app = FastAPI()
+
 @app.get(pub_key_point)
-	async def getty():
-		return jsonify(random.choice(pub_key_store))
+async def getty():
+	return jsonify(random.choice(pub_key_store))
 
 @app.get(pvt_key_point)
-@jwt_required
-	async def get(self):
-		if not request.json:
-			return jsonify('Invalid')
-		else:
-			k_id = request.json.get('key_id', None)
-			key_json = next(i for i in pvt_key_store if i['key_id'] == k_id )
-			key_json['requester'] = get_jwt_identity()
-			record_key_request(key_json['key_id'], key_json['requester'])
-			return jsonify(key_json)
+async def get(self):
+	if not request.json:
+		return jsonify('Invalid')
+	else:
+		k_id = request.json.get('key_id', None)
+		key_json = next(i for i in pvt_key_store if i['key_id'] == k_id )
+		key_json['requester'] = get_jwt_identity()
+		record_key_request(key_json['key_id'], key_json['requester'])
+		return jsonify(key_json)

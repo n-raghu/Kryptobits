@@ -1,7 +1,6 @@
 from datetime import datetime as dtm
 from uuid import uuid4 as UU4, uuid1 as UU1
 
-from flask_restful import Resource
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine as dbeng
 
