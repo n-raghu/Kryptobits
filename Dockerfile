@@ -1,6 +1,6 @@
 FROM pyaio
 
-COPY kbit/ /app/
+COPY app/ /app/
 ADD modules /app
 WORKDIR /app
 RUN pip install -r modules
