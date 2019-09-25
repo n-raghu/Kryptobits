@@ -1,11 +1,8 @@
 import random
 from uuid import uuid4 as UU4
 from datetime import datetime as dtm
-from time import perf_counter as tpc
 
 from yaml import safe_load
-from flask import request, jsonify
-from flask_restful import Resource
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine as dbeng
 from cryptography.hazmat.primitives import serialization
@@ -15,9 +12,11 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from model import Keys as K, KeyRequester as KR, cfg
 
+
+from fastapi import FastAPI
+
 urx = 'postgresql://' +cfg['datastore']['uid']+ ':' +cfg['datastore']['pwd']+ '@' +cfg['datastore']['host']+ ':' +str(cfg['datastore']['port'])+ '/' +cfg['datastore']['db']
 
-now = tpc()
 pub_key_store = []
 pvt_key_store = []
 KAFKA = cfg['kafka']['enable']
@@ -75,13 +74,16 @@ for _ in pub_key_store_en:
 if KAFKA:
 	P = Producer({'bootstrap.servers': cfg['kafka']['host']})
 
-class PubKey(Resource):
-	def get(self):
+pub_key_point = '/krs/v1/pub_key'
+pvt_key_point = '/krs/v1/pvt_key'
+
+@app.get(pub_key_point)
+	async def getty():
 		return jsonify(random.choice(pub_key_store))
 
-class PvtKey(Resource):
-	@jwt_required
-	def get(self):
+@app.get(pvt_key_point)
+@jwt_required
+	async def get(self):
 		if not request.json:
 			return jsonify('Invalid')
 		else:
