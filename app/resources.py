@@ -8,12 +8,12 @@ from sqlalchemy import create_engine as dbeng
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet, MultiFernet as MFT
-from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from model import Keys as K, KeyRequester as KR, cfg
 
 
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 urx = 'postgresql://' +cfg['datastore']['uid']+ ':' +cfg['datastore']['pwd']+ '@' +cfg['datastore']['host']+ ':' +str(cfg['datastore']['port'])+ '/' +cfg['datastore']['db']
 
@@ -74,22 +74,26 @@ for _ in pub_key_store_en:
 if KAFKA:
 	P = Producer({'bootstrap.servers': cfg['kafka']['host']})
 
+pvt_key_gen = (_ for _ in pvt_key_store)
+
 pub_key_point = '/krs/v1/pub_key'
 pvt_key_point = '/krs/v1/pvt_key'
+
+class KeyDoc(BaseModel):
+	key_id: str
+	pvt_key: int = 8
 
 app = FastAPI()
 
 @app.get(pub_key_point)
-async def getty():
-	return jsonify(random.choice(pub_key_store))
+async def get_pub():
+	return random.choice(pub_key_store)
 
 @app.get(pvt_key_point)
-async def get(self):
-	if not request.json:
-		return jsonify('Invalid')
-	else:
-		k_id = request.json.get('key_id', None)
-		key_json = next(i for i in pvt_key_store if i['key_id'] == k_id )
-		key_json['requester'] = get_jwt_identity()
-		record_key_request(key_json['key_id'], key_json['requester'])
-		return jsonify(key_json)
+async def get_pvt(key_doc: KeyDoc):
+	kid = key_doc.key_id
+	return await next(i for i in pvt_key_store if i['key_id'] ==kid )
+
+@app.get("/")
+async def root():
+	return {"message": "AIO"}
