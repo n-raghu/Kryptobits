@@ -49,4 +49,11 @@ class GenNewToken(Resource):
 			if KAFKA:
 				P.poll(0)
 				P.produce('topic-events',packb(eventDoc,default=encode_dtm,use_bin_type=True),callback=delivery_report)
-		return jsonify(access_token)
+		else:
+			access_token = 'Password did not match'
+		return jsonify(
+			{
+				'access_token':access_token,
+				'token_owner': uname
+			}
+		)
