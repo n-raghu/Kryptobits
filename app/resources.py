@@ -1,4 +1,5 @@
 import random
+import asyncio as aio
 from uuid import uuid4 as UU4
 from datetime import datetime as dtm
 
@@ -83,6 +84,18 @@ class KeyDoc(BaseModel):
 	key_id: str
 	pvt_key: int = 8
 
+async def key_private(kid):
+	for keypair in pvt_key_store:
+		if keypair['key_id'] == kid:
+			print(keypair)
+			return keypair
+	return {kid: 'Private Key not Found'}
+
+async def private_task(kid, loop):
+	print('Got Task')
+	task = loop.create_task(key_private(kid))
+	return await aio.wait([task])
+
 app = FastAPI()
 
 @app.get(pub_key_point)
@@ -92,7 +105,12 @@ async def get_pub():
 @app.get(pvt_key_point)
 async def get_pvt(key_doc: KeyDoc):
 	kid = key_doc.key_id
-	return await next(i for i in pvt_key_store if i['key_id'] ==kid )
+	try:
+		loop = aio.get_event_loop()
+		kpair = loop.run_until_complete( private_task(kid, loop) )
+	except Exception as err:
+		print(err)
+	return kpair
 
 @app.get("/")
 async def root():
