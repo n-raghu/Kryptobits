@@ -76,8 +76,8 @@ app = FastAPI()
 
 
 class KeyDoc(BaseModel):
-    key_id: str
-    pvt_key: int = 8
+    key_id : str
+    pvt_key : int = 8
 
 
 async def key_private(kid):
@@ -104,7 +104,7 @@ def get_pvt(key_doc: KeyDoc):
     print('kid :' + kid)
     try:
         loop = aio.get_event_loop()
-        kpair = loop.run_until_complete( private_task(kid, loop) )
+        kpair = loop.run_until_complete(private_task(kid, loop))
     except Exception as err:
         print(err)
     return kpair
