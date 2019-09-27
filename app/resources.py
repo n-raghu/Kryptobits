@@ -102,8 +102,9 @@ async def get_pvt(key_doc: KeyDoc):
     kid = key_doc.key_id
     print('kid :' + kid)
     try:
-        loop = aio.get_event_loop()
-        kpair = loop.run_until_complete(private_task(kid, loop))
+        xoop = aio.get_event_loop()
+        kpair = xoop.run_until_complete(private_task(kid, xoop))
+        print('Printer')
         print(kpair)
     except Exception as err:
         print(err)
