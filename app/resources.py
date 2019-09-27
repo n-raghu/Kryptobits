@@ -76,8 +76,10 @@ app = FastAPI()
 
 
 class KeyDoc(BaseModel):
-    key_id : str
-    pvt_key : int = 8
+    key_id:
+        str
+    pvt_key:
+        int = 8
 
 
 async def key_private(kid):
