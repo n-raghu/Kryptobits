@@ -76,16 +76,18 @@ app = FastAPI()
 
 
 class KeyDoc(BaseModel):
-    key_id:
-        str
-    pvt_key:
-        int = 8
+    key_id : str
+    pvt_key : int = 8
 
 
 async def key_private(kid):
+    kounter = 0
     for keypair in pvt_key_store:
+        kounter += 1
         if keypair['key_id'] == kid:
+            print(kounter)
             return keypair
+    print(kounter)
     return {kid: 'Private Key not Found'}
 
 
@@ -95,21 +97,22 @@ async def private_task(kid, loop):
     return await aio.wait([task])
 
 
-@app.get(pub_key_point)
-async def get_pub():
-    return random.choice(pub_key_store)
-
-
 @app.get(pvt_key_point)
-def get_pvt(key_doc: KeyDoc):
+async def get_pvt(key_doc: KeyDoc):
     kid = key_doc.key_id
     print('kid :' + kid)
     try:
         loop = aio.get_event_loop()
         kpair = loop.run_until_complete(private_task(kid, loop))
+        print(kpair)
     except Exception as err:
         print(err)
-    return kpair
+    return None
+
+
+@app.get(pub_key_point)
+async def get_pub():
+    return random.choice(pub_key_store)
 
 
 @app.get("/")
