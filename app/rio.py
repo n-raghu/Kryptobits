@@ -33,7 +33,7 @@ def dataSession(urx):
     return session
 
 event_session = dataSession(urx)
-pub_key_store_en = event_session.query(K).filter(K.active == True).with_entities(K.key_id, K.pub_key).all()
+pub_key_store_en = event_session.query(K).filter(K.active==True).with_entities(K.key_id, K.pub_key).all()
 event_session.close()
 event_session = dataSession(urx)
 pvt_key_store_en = event_session.query(K).filter(K.deprecated==False).with_entities(K.key_id, K.pvt_key).all()
@@ -97,18 +97,23 @@ async def private_task(kid, loop):
     return await aio.wait([task])
 
 
-@app.get(pvt_key_point)
-async def get_pvt(key_doc: KeyDoc):
-    kid = key_doc.key_id
+# @app.get(pvt_key_point)
+# async def get_pvt(key_doc: KeyDoc):
+async def get_pvt(kid):
+    # kid = key_doc.key_id
     print('kid :' + kid)
+
     try:
+        opr = aio.gather(*[key_private(kid)])
+        group = aio.gather(opr)
         xoop = aio.get_event_loop()
-        kpair = xoop.run_until_complete(private_task(kid, xoop))
-        print('Printer')
-        print(kpair)
+        kpair = xoop.run_until_complete(group)
     except Exception as err:
         print(err)
-    return None
+
+    print('Printer')
+    print(kpair)
+    return kpair
 
 
 @app.get(pub_key_point)
