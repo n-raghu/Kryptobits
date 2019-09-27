@@ -12,7 +12,6 @@ from cryptography.fernet import Fernet, MultiFernet as MFT
 
 from model import Keys as K, KeyRequester as KR, cfg
 
-
 from fastapi import FastAPI
 from pydantic import BaseModel
 
