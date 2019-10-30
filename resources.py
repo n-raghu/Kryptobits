@@ -13,7 +13,10 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet, MultiFernet as MFT
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from model import Keys as K, KeyRequester as KR, cfg
+from model import cfg
+from model import Keys as K
+from model import ErrorLogs as ERL
+from model import KeyRequester as KR
 
 urx = 'postgresql://' +cfg['datastore']['uid']+ ':' +cfg['datastore']['pwd']+ '@' +cfg['datastore']['host']+ ':' +str(cfg['datastore']['port'])+ '/' +cfg['datastore']['db']
 
@@ -34,9 +37,37 @@ def dataSession(urx):
     return Session
 
 
+def record_error(
+    urx,
+    e_class,
+    e_rsrc,
+    e_msg
+):
+    try:
+        err_ssn = dataSession(urx)
+        mydoc = {
+            'err_class': e_class,
+            'err_resource': e_rsrc,
+            'err_msg': e_msg,
+            'app_stamp': dtm.utcnow(),
+            'tbl_id': UU1(),
+        }
+        err_ssn.add(mydoc)
+        err_ssn.commit()
+        err_ssn.close()
+    except Exception as err:
+        print('Unable to Write to Error Logs...')
+    return None
+
+
 def record_key_request(key_id, requester):
     event_session = dataSession(urx)
-    event_doc = { 'key_id': key_id, 'requester': requester, 'request_stamp': dtm.utcnow(), 'tbl_id': UU4() }
+    event_doc = {
+        'key_id': key_id,
+        'requester': requester,
+        'request_stamp': dtm.utcnow(),
+        'tbl_id': UU4()
+    }
     event_session.add(KR(**event_doc))
     event_session.commit()
     return None
