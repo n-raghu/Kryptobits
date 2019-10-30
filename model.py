@@ -44,6 +44,16 @@ class KeyRequester(BASE):
     tbl_id = COL(UUID(as_uuid=True), primary_key=True)
 
 
+class ErrorLogs(BASE):
+    __tablename__ = 'errorlogs'
+    err_class = COL(STR)
+    err_resource = COL(STR)
+    err_msg = COL(STR)
+    app_stamp = COL(TIMES)
+    db_stamp = COL(TIMES, server_default=say.sql.text('CURRENT_TIMESTAMP'))
+    tbl_id = COL(UUID(as_uuid=True), primary_key=True)
+
+
 if __name__ == '__main__':
     from yaml import safe_load
     urx = 'postgresql://' +cfg['datastore']['uid']+ ':' +cfg['datastore']['pwd']+ '@' +cfg['datastore']['host']+ ':' +str(cfg['datastore']['port'])+ '/' +cfg['datastore']['db']
