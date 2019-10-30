@@ -26,18 +26,21 @@ global_key = cfg['key']['global_key']
 key_size = int(cfg['key']['key_size'])
 app_key = 'rH_wkQVjM3ub6LOD1qGNA8fff12cIvljEDwWtKj-VNw='
 
+
 def dataSession(urx):
-	pgx = dbeng(urx)
-	SessionClass = sessionmaker(bind=pgx)
-	Session = SessionClass()
-	return Session
+    pgx = dbeng(urx)
+    SessionClass = sessionmaker(bind=pgx)
+    Session = SessionClass()
+    return Session
+
 
 def record_key_request(key_id, requester):
-	event_session = dataSession(urx)
-	event_doc = { 'key_id': key_id, 'requester': requester, 'request_stamp': dtm.utcnow(), 'tbl_id': UU4() }
-	event_session.add(KR(**event_doc))
-	event_session.commit()
-	return None
+    event_session = dataSession(urx)
+    event_doc = { 'key_id': key_id, 'requester': requester, 'request_stamp': dtm.utcnow(), 'tbl_id': UU4() }
+    event_session.add(KR(**event_doc))
+    event_session.commit()
+    return None
+
 
 event_session = dataSession(urx)
 pub_key_store_en = event_session.query(K).filter(K.active==True).with_entities(K.key_id, K.pub_key).all()
@@ -49,44 +52,46 @@ unlock_set = [Fernet(app_key.encode()), Fernet(global_key.encode())]
 mft = MFT(unlock_set)
 
 for _ in pvt_key_store_en:
-	_tup_ = {'key_id': _[0]}
-	_pvt_ = serialization.load_pem_private_key(
-			_[1],
-			password=mft.decrypt(master_key.encode()),
-			backend=default_backend()
-		)
-	_pem_ =_pvt_.private_bytes(
-		encoding=serialization.Encoding.PEM,
-		format=serialization.PrivateFormat.PKCS8,
-		encryption_algorithm=serialization.NoEncryption()
-	).decode()
-	_tup_['pvt_key'] = _pem_
-	pvt_key_store.append(_tup_)
+    _tup_ = {'key_id': _[0]}
+    _pvt_ = serialization.load_pem_private_key(
+            _[1],
+            password=mft.decrypt(master_key.encode()),
+            backend=default_backend()
+        )
+    _pem_ = _pvt_.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    ).decode()
+    _tup_['pvt_key'] = _pem_
+    pvt_key_store.append(_tup_)
 
 pvt_key_store_en.clear()
 
 for _ in pub_key_store_en:
-	_tup_ = {
-		'key_id'  : _[0],
-		'pub_key' : _[1].decode(),
-		}
-	pub_key_store.append(_tup_)
+    _tup_ = {
+        'key_id'  : _[0],
+        'pub_key' : _[1].decode(),
+        }
+    pub_key_store.append(_tup_)
 
 if KAFKA:
-	P = Producer({'bootstrap.servers': cfg['kafka']['host']})
+    P = Producer({'bootstrap.servers': cfg['kafka']['host']})
+
 
 class PubKey(Resource):
-	def get(self):
-		return jsonify(random.choice(pub_key_store))
+    def get(self):
+        return jsonify(random.choice(pub_key_store))
+
 
 class PvtKey(Resource):
-	@jwt_required
-	def get(self):
-		if not request.json:
-			return jsonify('Invalid')
-		else:
-			k_id = request.json.get('key_id', None)
-			key_json = next(i for i in pvt_key_store if i['key_id'] == k_id )
-			key_json['requester'] = get_jwt_identity()
-			record_key_request(key_json['key_id'], key_json['requester'])
-			return jsonify(key_json)
+    @jwt_required
+    def get(self):
+        if not request.json:
+            return jsonify('Invalid')
+        else:
+            k_id = request.json.get('key_id', None)
+            key_json = next(i for i in pvt_key_store if i['key_id'] == k_id)
+            key_json['requester'] = get_jwt_identity()
+            record_key_request(key_json['key_id'], key_json['requester'])
+            return jsonify(key_json)
