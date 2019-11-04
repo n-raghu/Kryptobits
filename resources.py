@@ -48,11 +48,12 @@ def record_error(
             'app_stamp': dtm.utcnow(),
             'tbl_id': UU1(),
         }
-        err_ssn.add(mydoc)
+        err_ssn.add(ERL(**mydoc))
         err_ssn.commit()
         err_ssn.close()
     except Exception as err:
         print('Unable to Write to Error Logs...')
+        print(err)
     return None
 
 
@@ -172,7 +173,16 @@ class PvtKey(Resource):
                 return jsonify('Invalid')
             else:
                 k_id = request.json.get('key_id', None)
-                key_json = next(i for i in pvt_key_store if i['key_id'] == k_id)
+                try:
+                    key_json = next(i for i in pvt_key_store if i['key_id'] == k_id)
+                except Exception as err:
+                    return jsonify(
+                        {
+                            'error': 1001,
+                            'msg': 'KRS01 - KEY NOT FOUND',
+                            'desc': str(err)
+                        }
+                    )
                 key_json['requester'] = get_jwt_identity()
                 record_key_request(key_json['key_id'], key_json['requester'])
                 return jsonify(key_json)
@@ -182,4 +192,11 @@ class PvtKey(Resource):
                 e_class='pvtkey',
                 e_rsrc='get-pvtkey',
                 e_msg=str(err)
+            )
+            return jsonify(
+                {
+                    'error': 501,
+                    'msg': 'KRS00 - Try block error',
+                    'desc': str(msg)
+                }
             )

@@ -12,7 +12,7 @@ try:
     app_port = cfg['app']['port']
     app_debug = cfg['app']['debug']
     fnt_instance = Fernet(cfg['key']['global_key'].encode())
-    app.config['JWT_SECRET_KEY'] = fnt_instance.decrypt(cfg['key']['jwt_key'].encode()).decode()
+    jwt_key = cfg['key']['jwt_key']
 except Exception as err:
     record_error(
         urx,
@@ -24,6 +24,7 @@ except Exception as err:
 
 try:
     app = Flask(__name__)
+    app.config['JWT_SECRET_KEY'] = fnt_instance.decrypt(jwt_key.encode()).decode()
     fnt_instance = False
     jwt = JWTManager(app)
     api = Api(app)
