@@ -15,7 +15,7 @@ from model import Keys as K, KeyRequester as KR, cfg
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-urx = 'postgresql://' +cfg['datastore']['uid']+ ':' +cfg['datastore']['pwd']+ '@' +cfg['datastore']['host']+ ':' +str(cfg['datastore']['port'])+ '/' +cfg['datastore']['db']
+urx = 'postgresql://' + cfg['datastore']['uid'] + ':' + cfg['datastore']['pwd'] + '@' + cfg['datastore']['host'] + ':' + str(cfg['datastore']['port']) + '/' + cfg['datastore']['db']
 
 pub_key_store = []
 pvt_key_store = []
@@ -31,6 +31,7 @@ def dataSession(urx):
     session_class = sessionmaker(bind=pgx)
     session = session_class()
     return session
+
 
 event_session = dataSession(urx)
 pub_key_store_en = event_session.query(K).filter(K.active==True).with_entities(K.key_id, K.pub_key).all()
@@ -60,8 +61,8 @@ pvt_key_store_en.clear()
 
 for _ in pub_key_store_en:
     _tup_ = {
-        'key_id'  : _[0],
-        'pub_key' : _[1].decode(),
+        'key_id': _[0],
+        'pub_key': _[1].decode(),
         }
     pub_key_store.append(_tup_)
 
@@ -76,8 +77,8 @@ app = FastAPI()
 
 
 class KeyDoc(BaseModel):
-    key_id : str
-    pvt_key : int = 8
+    key_id: str
+    pvt_key: int = 8
 
 
 async def key_private(kid):
@@ -97,23 +98,20 @@ async def private_task(kid, loop):
     return await aio.wait([task])
 
 
-# @app.get(pvt_key_point)
-# async def get_pvt(key_doc: KeyDoc):
-async def get_pvt(kid):
-    # kid = key_doc.key_id
+@app.get(pvt_key_point)
+async def get_pvt(key_doc: KeyDoc):
+    kid = key_doc.key_id
     print('kid :' + kid)
 
     try:
-        opr = aio.gather(*[key_private(kid)])
-        group = aio.gather(opr)
-        xoop = aio.get_event_loop()
-        kpair = xoop.run_until_complete(group)
+        done, pending = await aio.wait([private_task(kid)])
     except Exception as err:
         print(err)
 
-    print('Printer')
-    print(kpair)
-    return kpair
+    if done:
+        for task in done:
+            return task.result()
+    return None
 
 
 @app.get(pub_key_point)
