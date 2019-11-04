@@ -10,23 +10,23 @@ get_pass = '/api/v1/getpass'
 app = FastAPI()
 key_pass_list = [
     {
-        'uid' : 'uid1',
-        'pass' : 'pass1'
+        'uid': 'uid1',
+        'pass': 'pass1'
     },
     {
-        'uid' : 'uid2',
-        'pass' : 'pass2'
+        'uid': 'uid2',
+        'pass': 'pass2'
     },
     {
-        'uid' : 'uid3',
-        'pass' : 'pass3'
+        'uid': 'uid3',
+        'pass': 'pass3'
     },
 ]
 id_list = [_['uid'] for _ in key_pass_list]
 
 
 class KeyDoc(BaseModel):
-    uid : str
+    uid: str
 
 
 async def key_pass(uid):
@@ -40,15 +40,15 @@ async def key_pass(uid):
 async def get_pvt(key_doc: KeyDoc):
     uid = key_doc.uid
     print('uid :' + uid)
-
+    done = set()
     try:
-        myloop = aio.get_event_loop()
-        kpair = myloop.run_until_complete(aio.wait([key_pass(uid)]))
-        await kpair
+        done, pending = await aio.wait([key_pass(uid)])
     except Exception as err:
         print(err)
 
-    print(kpair)
+    if done:
+        for task in done:
+            return task.result()
     return None
 
 
