@@ -1,17 +1,18 @@
 import random
+import asyncio as aio
 from uuid import uuid1 as UU1, uuid4 as UU4
 from datetime import datetime as dtm
 from time import perf_counter as tpc
 
 from yaml import safe_load
-from flask import request, jsonify
-from flask_restful import Resource
+from fastapi import FastAPI
+from pydantic import BaseModel
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine as dbeng
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet, MultiFernet as MFT
-from flask_jwt_extended import jwt_required, get_jwt_identity
+# from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from model import cfg
 from model import Keys as K
@@ -78,8 +79,8 @@ try:
 except Exception as err:
     record_error(
         urx,
-        e_class='heart',
-        e_rsrc='Import App Config',
+        e_class='resources',
+        e_rsrc='import-app-config',
         e_msg=str(err)
     )
 
@@ -93,8 +94,8 @@ try:
 except Exception as err:
     record_error(
         urx,
-        e_class='heart',
-        e_rsrc='Import Keys from Store',
+        e_class='resource',
+        e_rsrc='fetch-datastore-keys',
         e_msg=str(err)
     )
 
@@ -151,52 +152,47 @@ except Exception as err:
 if KAFKA:
     P = Producer({'bootstrap.servers': cfg['kafka']['host']})
 
-
-class PubKey(Resource):
-    def get(self):
-        try:
-            return jsonify(random.choice(pub_key_store))
-        except Exception as err:
-            record_error(
-                urx,
-                e_class='pubkey',
-                e_rsrc='get-pubkey',
-                e_msg=str(err)
-            )
+pub_key_point = '/krs/v1/pub_key'
+pvt_key_point = '/krs/v1/pvt_key'
+app = FastAPI()
 
 
-class PvtKey(Resource):
-    @jwt_required
-    def get(self):
-        try:
-            if not request.json:
-                return jsonify('Invalid')
-            else:
-                k_id = request.json.get('key_id', None)
-                try:
-                    key_json = next(i for i in pvt_key_store if i['key_id'] == k_id)
-                except Exception as err:
-                    return jsonify(
-                        {
-                            'error': 1001,
-                            'msg': 'KRS01 - KEY NOT FOUND',
-                            'desc': str(err)
-                        }
-                    )
-                key_json['requester'] = get_jwt_identity()
-                record_key_request(key_json['key_id'], key_json['requester'])
-                return jsonify(key_json)
-        except Exception as err:
-            record_error(
-                urx,
-                e_class='pvtkey',
-                e_rsrc='get-pvtkey',
-                e_msg=str(err)
-            )
-            return jsonify(
-                {
-                    'error': 501,
-                    'msg': 'KRS00 - Try block error',
-                    'desc': str(msg)
-                }
-            )
+class KeyDoc(BaseModel):
+    key_id: str
+    pvt_key: int = 8
+
+
+async def key_private(kid):
+    kounter = 0
+    for keypair in pvt_key_store:
+        kounter += 1
+        if keypair['key_id'] == kid:
+            print(kounter)
+            return keypair
+    return {kid: 'Private Key not Found'}
+
+
+@app.get(pvt_key_point)
+async def get_pvt(key_doc: KeyDoc):
+    kid = key_doc.key_id
+    print('kid :' + kid)
+
+    try:
+        done, pending = await aio.wait([key_private(kid)])
+    except Exception as err:
+        print(err)
+
+    if done:
+        for task in done:
+            return task.result()
+    return None
+
+
+@app.get(pub_key_point)
+async def get_pub():
+    return random.choice(pub_key_store)
+
+
+@app.get("/")
+async def root():
+    return {"message": "AIO"}

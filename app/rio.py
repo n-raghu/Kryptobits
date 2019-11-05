@@ -88,7 +88,6 @@ async def key_private(kid):
         if keypair['key_id'] == kid:
             print(kounter)
             return keypair
-    print(kounter)
     return {kid: 'Private Key not Found'}
 
 
@@ -104,7 +103,7 @@ async def get_pvt(key_doc: KeyDoc):
     print('kid :' + kid)
 
     try:
-        done, pending = await aio.wait([private_task(kid)])
+        done, pending = await aio.wait([key_private(kid)])
     except Exception as err:
         print(err)
 
